@@ -92,7 +92,7 @@ bool EntradaInvalida(int argc, int metodo, int quantidade, int situacao){
         return true;
     }
 
-    if(!(quantidade == 100 || quantidade == 1000 || quantidade == 10000 || quantidade == 100000 || quantidade == 471705)){
+    if(!(quantidade == 50 || quantidade == 100 || quantidade == 1000 || quantidade == 10000 || quantidade == 100000 || quantidade == 471705)){
         printf("Tamanho de arquivo inválido\n");
         return true;
     }

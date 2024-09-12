@@ -1,6 +1,7 @@
 #include "gerador.h"
 #include <stdio.h>
 #include "quicksort.h"
+#include <string.h>
 
 void read_and_print_records(const char *filename) {
      FILE *input_file;
@@ -14,9 +15,9 @@ void read_and_print_records(const char *filename) {
      }
      int i = 0;
      // Read records from the binary file and print them
-     while (i < 1000) {
+     while (i < 100) {
         fread(&record, sizeof(TipoRegistro), 1, input_file);
-        printf("%ld %.2f %s %s %s\n", record.inscricao, record.nota, record.estado, record.cidade, record.curso);
+        printf("%ld %.2f %s\n", record.inscricao, record.nota, record.restante);
         i++;
      }
 
@@ -47,7 +48,8 @@ void read_and_print_records(const char *filename) {
     // Read lines from input file and write to binary file
     while (fgets(line, MAX_LINE_LENGTH, input_file) != NULL) {
         // Parse the line into the record struct
-        if (sscanf(line, "%8ld %5f %2s %50s %30s", &record.inscricao, &record.nota, record.estado, record.cidade, record.curso) != 5) {
+        if (sscanf(line, "%8ld %5f %[a-z A-Z]'\n'", &record.inscricao, &record.nota, record.restante) != 3) {
+            //record.restante[strlen(record.restante)] = '\0';
             fprintf(stderr, "Error parsing line: %s\n", line);
             continue;
         }
