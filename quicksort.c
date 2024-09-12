@@ -11,7 +11,7 @@ void debugger(const char* linha){
 }
 
 void QuicksortExterno(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, int Esq, int Dir){
-    debugger("Entrou em QuicksortExterno");
+    //debugger("Entrou em QuicksortExterno");
     int i, j;
     TipoArea Area;
     Area.tam = 0; 
@@ -37,8 +37,8 @@ void LeSup(FILE **ArqLEs, TipoRegistro *UltLido, int *Ls, short *OndeLer){
     fseek(*ArqLEs, (*Ls - 1) * sizeof(TipoRegistro), SEEK_SET);
     fread(UltLido, sizeof(TipoRegistro), 1, *ArqLEs);
     (*Ls)--;
-    printf("Ls: %d\n", *Ls);
-    printf("Nota: %f\n", UltLido->nota);
+    //printf("Ls: %d\n", *Ls);
+    //printf("Nota: %f\n", UltLido->nota);
     *OndeLer = false;
 }
 
@@ -47,8 +47,8 @@ void LeSup(FILE **ArqLEs, TipoRegistro *UltLido, int *Ls, short *OndeLer){
 void LeInf(FILE **ArqLi, TipoRegistro *UltLido, int *Li, short *OndeLer){
     fread(UltLido, sizeof(TipoRegistro), 1, *ArqLi);
     (*Li)++;
-    printf("Li: %d\n", *Li);
-    printf("Nota: %f\n", UltLido->nota);
+   // printf("Li: %d\n", *Li);
+    //printf("Nota: %f\n", UltLido->nota);
     *OndeLer = true;
 }
 
@@ -56,7 +56,7 @@ void LeInf(FILE **ArqLi, TipoRegistro *UltLido, int *Li, short *OndeLer){
 
 
 void InserirArea(TipoArea *Area, TipoRegistro *UltLido, int *NRArea){
-    debugger("Inseriu no pivo------------------------------------------");
+    //debugger("Inseriu no pivo------------------------------------------");
     ListaInsereFinal(Area, *UltLido);
     *NRArea = ListaTamanho(Area);
 }
@@ -87,8 +87,8 @@ void RetiraMin(TipoArea *Area, TipoRegistro *R, int *NRArea){
 }
 
 void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq, int Dir, int *i, int *j){
-    debugger("------------------------------");
-    debugger("Entrou em Particao");
+    // debugger("------------------------------");
+    // debugger("Entrou em Particao");
     int Ls = Dir, Es = Dir, Li = Esq, Ei = Esq, NRArea = 0, Linf = INT_MIN, Lsup = INT_MAX;
     short OndeLer = true;
     TipoRegistro UltLido, R;
@@ -96,10 +96,10 @@ void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq,
     fseek(*ArqEi, (Ei - 1) * sizeof(TipoRegistro), SEEK_SET);
     *i = Esq - 1;
     *j = Dir + 1;
-    debugger("Antes do while");
+    //debugger("Antes do while");
     while(Ls >= Li){
         if(NRArea < TAM_AREA - 1){
-            debugger("Entrou no 1 if");
+            //debugger("Entrou no 1 if");
             if(OndeLer)
                 LeSup(ArqLEs, &UltLido, &Ls, &OndeLer);
             else
@@ -109,29 +109,29 @@ void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq,
         }
 
         if(Ls == Es){
-            debugger("Entrou no 2 if");
-            printf("Es: %d", Es);
+            //debugger("Entrou no 2 if");
+            //printf("Es: %d", Es);
             LeSup(ArqLEs, &UltLido, &Ls, &OndeLer);
         }else if(Li == Ei){
-            debugger("Entrou no 3 if");
+            //debugger("Entrou no 3 if");
             LeInf(ArqLi, &UltLido, &Li, &OndeLer);
         }else if(OndeLer){
-            debugger("Entrou no 4 if");
+            //debugger("Entrou no 4 if");
             LeSup(ArqLEs, &UltLido, &Ls, &OndeLer);
         }else {
-            debugger("Entrou no 5 if");
+            //debugger("Entrou no 5 if");
             LeInf(ArqLi, &UltLido, &Li, &OndeLer);
         }
         
         if(UltLido.nota > Lsup){
-            debugger("Entrou no 6 if");
+            //debugger("Entrou no 6 if");
             *j = Es;
             EscreveMax(ArqLEs, UltLido, &Es);
             continue;
         }
 
         if(UltLido.nota < Linf){
-            debugger("Entrou no 7 if");
+            //debugger("Entrou no 7 if");
             *i = Ei;
             EscreveMin(ArqEi, UltLido, &Ei);
             continue;
@@ -140,22 +140,22 @@ void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq,
         InserirArea(&Area, &UltLido, &NRArea);
 
         if(Ei - Esq < Dir - Es){
-            debugger("Arquivo A1");
+            //debugger("Arquivo A1");
             RetiraMin(&Area, &R, &NRArea);
             EscreveMin(ArqEi, R, &Ei);
             Linf = R.nota;
         }else{
-            debugger("Arquivo A2");
+            //debugger("Arquivo A2");
             RetiraMax(&Area, &R, &NRArea);
             EscreveMax(ArqLEs, R, &Es);
             Lsup = R.nota;
         }   
     }
-    debugger("Antes do 2 while");
+    //debugger("Antes do 2 while");
     while(Ei <= Es){
         
         RetiraMin(&Area, &R, &NRArea);
         EscreveMin(ArqEi, R, &Ei);
     }
-    debugger("terminou particao");
+    //debugger("terminou particao");
 }
