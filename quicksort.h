@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#define TAM_AREA 20
+#define TAM_AREA 220
 
 
 typedef struct {
@@ -14,7 +14,7 @@ typedef struct {
 
 
 typedef struct {
-    TipoRegistro itens[TAM_AREA];
+    TipoRegistro *itens;
     int tam;
 } TipoArea;
 

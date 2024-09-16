@@ -17,15 +17,14 @@ void read_and_print_records(const char *filename) {
      // Read records from the binary file and print them
      while (i < 100) {
         fread(&record, sizeof(TipoRegistro), 1, input_file);
-        printf("%ld %.2f %s\n", record.inscricao, record.nota, record.restante);
+        printf("%ld %.1f %s %d\n", record.inscricao, record.nota, record.restante, i);
         i++;
      }
 
     // Close the file
-     fclose(input_file);
+     fclose(input_file); 
 
  }
-
 
  void txtParaBin(const char *txt, const char *bin){
     FILE *input_file, *output_file;
@@ -61,7 +60,7 @@ void read_and_print_records(const char *filename) {
         }
     }
 
-    //read_and_print_records("PROVAO.dat");
+    read_and_print_records("PROVAO.bin");
 
     printf("------------Arquivo gerado com sucesso--------------\n");
 

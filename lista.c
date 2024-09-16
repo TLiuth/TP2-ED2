@@ -3,31 +3,30 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#define DEBUG_MODE false
 
-Lista* ListaCria() {
-    Lista* lista = (Lista*) malloc(sizeof(Lista));
-    if (lista == NULL)
-        exit(1);
+void ListaCria(Lista *lista){
     lista->tam = 0;
-    return lista;
+    lista->itens = (TipoRegistro*) malloc(TAM_AREA * sizeof(TipoRegistro));
 }
 
-void ListaDestroi(Lista** pLista) {
-    free(*pLista);
-    *pLista = NULL;
+void ListaDestroi(Lista* pLista) {
+    free(pLista);
+    pLista = NULL;
 }
 
 bool ListaEhVazia(Lista* pLista) {
     return pLista->tam == 0;
 }
 
-bool ListaInsereFinal(Lista* pLista, TipoRegistro x) {
-    if (pLista->tam == TAM_AREA)
-        return false;
-    pLista->itens[pLista->tam++] = x;
-    insertion(pLista);
-    return true;
-}
+// bool ListaInsereFinal(Lista* pLista, TipoRegistro x) {
+//     if (pLista->tam == TAM_AREA)
+//         return false;
+//     pLista->itens[pLista->tam++] = x;
+//     insertion(pLista);
+//     if(DEBUG_MODE) printf("Inseriu no pivo: %.2f | %ld <<<<<<<<<<<<<<<<<<<<<<<<<<\n", x.nota, x.inscricao);
+//     return true;
+// }
 
 bool ListaInsereInicio(Lista* pLista, TipoRegistro x) {
     if (pLista->tam == TAM_AREA)
@@ -65,27 +64,34 @@ bool ListaRetiraInicio(Lista* pLista, TipoRegistro *pX) {
     return true;
 }
 
+void ListaImprime(Lista* pLista) {
+    if (ListaEhVazia(pLista)) {
+        printf("Pivot vazio. \n");
+        return;
+    }
 
-
-bool ListaGet(Lista* pLista, int p, TipoRegistro *pX) {
-    if (p >= ListaTamanho(pLista) || p < 0 )
-        return false;
-    (*pX) = pLista->itens[p];
-    return true;
+    //printf("++++ Lista de Notas: %.2f ", pLista->itens[0].nota);
+    printf("Pivot: ");
+    for (int i = 0; i < pLista->tam; i++) {
+        TipoRegistro reg = pLista->itens[i];
+        printf("| %.2f ", reg.nota);
+    }
+    printf("\n");
 }
+
+
 
 int ListaTamanho(Lista* pLista) {
     return pLista->tam;
 }
 
-void insertion(Lista *v) {
-    for(int i = 1; i < v->tam; i++) {
-        TipoRegistro aux = v->itens[i];
-        int j = i - 1;
-        while(j >= 0 && aux.nota < v->itens[j].nota) {
-            v->itens[j + 1] = v->itens[j];
-            j--;
-        }
-        v->itens[j + 1] = aux;
+void insere(Lista *area, TipoRegistro ultimoLido, int i) {
+    // Find the correct position to insert the new item
+    while ((i >= 0) && (area->itens[i].nota > ultimoLido.nota)) {
+        area->itens[i + 1] = area->itens[i];
+        i--;
     }
+    // Insert the new item
+    area->itens[i + 1] = ultimoLido;
+    area->tam++;
 }

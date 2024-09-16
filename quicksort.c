@@ -2,21 +2,24 @@
 #include "quicksort.h"
 #include "lista.h"
 #include <stdbool.h>
+#include <stdlib.h>
 #include <limits.h>
 #define DEBUG_MODE true
 
+void PrintSubfileContents(FILE *file, int start, int end, const char *subfileName);
 
 void debugger(const char* linha){
     if(DEBUG_MODE) printf("> %s\n", linha);
 }
 
 void QuicksortExterno(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, int Esq, int Dir){
-    debugger("Entrou em QuicksortExterno");
-    int i, j;
+    if(DEBUG_MODE) printf("Entrou em QuicksortExterno\n");
+    int i = Esq, j = Dir;
     TipoArea Area;
-    Area.tam = 0; 
-    if(Dir - Esq < 1) return;
-    ListaEhVazia(&Area);
+    ListaCria(&Area);
+    if(Dir - Esq < 1) 
+        return;
+
     Particao(ArqLi, ArqEi, ArqLEs, Area, Esq, Dir, &i, &j);
 
     if( i - Esq < Dir - i){
@@ -24,42 +27,47 @@ void QuicksortExterno(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, int Esq, int Di
         QuicksortExterno(ArqLi, ArqEi, ArqLEs, j, Dir);
     }else{
         QuicksortExterno(ArqLi, ArqEi, ArqLEs, j, Dir);
-        QuicksortExterno(ArqLi, ArqEi, ArqLEs, Esq, i);
+        QuicksortExterno(ArqLi, ArqEi, ArqLEs, Esq, i); 
     }
+
+    free(Area.itens);
 }
-
-
 
 
 
 
 void LeSup(FILE **ArqLEs, TipoRegistro *UltLido, int *Ls, short *OndeLer){
     fseek(*ArqLEs, (*Ls - 1) * sizeof(TipoRegistro), SEEK_SET);
-    fread(UltLido, sizeof(TipoRegistro), 1, *ArqLEs);
+    if((fread(UltLido, sizeof(TipoRegistro), 1, *ArqLEs)) != 1){
+        printf("Erro ao ler máximo\n");
+    }
     (*Ls)--;
-    //printf("Ls: %d\n", *Ls);
-    if(DEBUG_MODE)printf("Lendo superior.... %f |%ld", UltLido->nota, UltLido->inscricao);
+    if(DEBUG_MODE) printf(">>> Lendo superior.... %f | %ld\n", UltLido->nota, UltLido->inscricao);
 
     *OndeLer = false;
+    printf("Ls: %d\n", *Ls);
+
 }
 
 
 
 void LeInf(FILE **ArqLi, TipoRegistro *UltLido, int *Li, short *OndeLer){
-    fread(UltLido, sizeof(TipoRegistro), 1, *ArqLi);
+    if((fread(UltLido, sizeof(TipoRegistro), 1, *ArqLi)) != 1){
+        printf("Erro ao ler mínimo\n");
+    }
     (*Li)++;
-    // printf("Li: %d\n", *Li);
-    printf("Lendo inferior.... %f |%ld", UltLido->nota, UltLido->inscricao);
+    if(DEBUG_MODE) printf(">>> Lendo inferior.... %f | %ld\n", UltLido->nota, UltLido->inscricao);
     *OndeLer = true;
+    printf("Li: %d\n", *Li);
 }
 
 
 
 
 void InserirArea(TipoArea *Area, TipoRegistro *UltLido, int *NRArea){
-    debugger("Inseriu no pivo------------------------------------------");
-    ListaInsereFinal(Area, *UltLido);
+    insere(Area, *UltLido, Area->tam - 1);
     *NRArea = ListaTamanho(Area);
+
 }
 
 
@@ -67,97 +75,115 @@ void InserirArea(TipoArea *Area, TipoRegistro *UltLido, int *NRArea){
 
 void EscreveMax(FILE **ArqLEs, TipoRegistro R, int* Es){
     fseek(*ArqLEs, (*Es - 1) * sizeof(TipoRegistro), SEEK_SET);
-    fwrite(&R, sizeof(TipoRegistro), 1, *ArqLEs);
+    printf("<<< Escrevendo Superior... %f | %ld\n", R.nota, R.inscricao);
+    if((fwrite(&R, sizeof(TipoRegistro), 1, *ArqLEs))!= 1)
+        printf("Erro ao escrever máximo\n");
     (*Es)--;
+    printf("Es: %d\n", *Es);
+
 }
 
 void EscreveMin(FILE **ArqEi, TipoRegistro R, int* Ei){
-    fwrite(&R, sizeof(TipoRegistro), 1, *ArqEi);
+    printf("<<< Escrevendo Inferior... %f | %ld\n", R.nota, R.inscricao);
+    if((fwrite(&R, sizeof(TipoRegistro), 1, *ArqEi))!= 1){
+        printf("Erro ao escrever mínimo\n");
+    }
     (*Ei)++;
+    printf("Ei: %d\n", *Ei);
 }
 
 
 void RetiraMax(TipoArea *Area, TipoRegistro *R, int *NRArea){
     ListaRetiraFinal(Area, R);
+     if(DEBUG_MODE) printf("---- Retirando maximo... %f | %ld\n", R->nota, R->inscricao);
     *NRArea = ListaTamanho(Area);
 }
 
 void RetiraMin(TipoArea *Area, TipoRegistro *R, int *NRArea){
-    printf("Retirando... %f | %ld\n", R->nota, R->inscricao);
     ListaRetiraInicio(Area, R);
+     if(DEBUG_MODE) printf("---- Retirando minimo... %f | %ld\n", R->nota, R->inscricao);
     *NRArea = ListaTamanho(Area);
 }
 
-void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq, int Dir, int *i, int *j){
-    debugger("------------------------------");
-    debugger("Entrou em Particao");
-    int Ls = Dir, Es = Dir, Li = Esq, Ei = Esq, NRArea = 0, Linf = INT_MIN, Lsup = INT_MAX;
-    short OndeLer = true;
-    TipoRegistro UltLido, R;
-    fseek(*ArqLi, (Li - 1) * sizeof(TipoRegistro), SEEK_SET);
-    fseek(*ArqEi, (Ei - 1) * sizeof(TipoRegistro), SEEK_SET);
-    *i = Esq - 1;
-    *j = Dir + 1;
-    //debugger("Antes do while");
-    while(Ls >= Li){
-        if(NRArea < TAM_AREA - 1){
-            //debugger("Entrou no 1 if");
-            if(OndeLer)
-                LeSup(ArqLEs, &UltLido, &Ls, &OndeLer);
-            else
-                LeInf(ArqLi, &UltLido, &Li, &OndeLer);
-            InserirArea(&Area, &UltLido, &NRArea);
-            continue;
-        }
+#define DEBUG_PARTICAO true
+void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs,
+              TipoArea area, int esq, int dir, int *i, int *j){
+    
+    int lSup = dir, eSup = dir, lInf = esq, eInf = esq,
+        numArea = 0;
+    float limInf = INT_MIN, limSup = INT_MAX;
+    short ondeLer = true; 
+    TipoRegistro ultimoLido, R;
+    fseek(*ArqLi, (lInf - 1) * sizeof(TipoRegistro), SEEK_SET);
+    fseek(*ArqEi, (eInf - 1) * sizeof(TipoRegistro), SEEK_SET);
+    *i = esq - 1;
+    *j = dir + 1;
 
-        if(Ls == Es){
-            debugger("Entrou no 2 if");
-            //printf("Es: %d", Es);
-            LeSup(ArqLEs, &UltLido, &Ls, &OndeLer);
-        }else if(Li == Ei){
-            debugger("Entrou no 3 if");
-            LeInf(ArqLi, &UltLido, &Li, &OndeLer);
-        }else if(OndeLer){
-            debugger("Entrou no 4 if");
-            LeSup(ArqLEs, &UltLido, &Ls, &OndeLer);
-        }else {
-            debugger("Entrou no 5 if");
-            LeInf(ArqLi, &UltLido, &Li, &OndeLer);
-        }
-        
-        if(UltLido.nota > Lsup){
-            debugger("Entrou no 6 if");
-            *j = Es;
-            EscreveMax(ArqLEs, UltLido, &Es);
-            continue;
-        }
+    while(lSup >= lInf){
+        PrintSubfileContents(*ArqEi, esq, *i, "A1");
 
-        if(UltLido.nota < Linf){
-            debugger("Entrou no 7 if");
-            *i = Ei;
-            EscreveMin(ArqEi, UltLido, &Ei);
-            continue;
+        if(numArea < TAM_AREA - 1){
+            if(ondeLer)
+                LeSup(ArqLEs, &ultimoLido, &lSup, &ondeLer);
+            else LeInf(ArqLi, &ultimoLido, &lInf, &ondeLer);
+
+                InserirArea(&area, &ultimoLido, &numArea);
+                continue;
         }
+        if(lSup == eSup)
+            LeSup(ArqLEs, &ultimoLido, &lSup, &ondeLer);
+            else if(lInf == eInf) LeInf(ArqLi, &ultimoLido, &lInf, &ondeLer);
+                else if (ondeLer) LeSup(ArqLEs, &ultimoLido, &lSup, &ondeLer);
+                    else LeInf(ArqLi, &ultimoLido, &lInf, &ondeLer);
 
-        InserirArea(&Area, &UltLido, &NRArea);
+        if(ultimoLido.nota > limSup){
+            *j = eSup;
+            EscreveMax(ArqLEs, ultimoLido, &eSup);
+            // continue;
+        } else if(ultimoLido.nota < limInf){
+            *i = eInf;
+            EscreveMin(ArqEi, ultimoLido, &eInf);
+            // continue;
+        } else {
+            InserirArea(&area, &ultimoLido, &numArea);
 
-        if(Ei - Esq < Dir - Es){
-            debugger("Arquivo A1");
-            RetiraMin(&Area, &R, &NRArea);
-            EscreveMin(ArqEi, R, &Ei);
-            Linf = R.nota;
-        }else{
-            debugger("Arquivo A2");
-            RetiraMax(&Area, &R, &NRArea);
-            EscreveMax(ArqLEs, R, &Es);
-            Lsup = R.nota;
-        }   
+            PrintSubfileContents(*ArqEi, esq, *i, "A1");
+            PrintSubfileContents(*ArqLEs, *j, dir, "A2");
+            printf("===========================================\n");
+
+            if(eInf - esq < dir - eSup){
+                RetiraMin(&area, &R, &numArea);
+                EscreveMin(ArqEi, R, &eInf); 
+                limInf = R.nota;
+            }
+            else {
+                RetiraMax(&area, &R, &numArea);
+                EscreveMax(ArqLEs, R, &eSup);
+                limSup = R.nota; 
+            }
+        }
     }
-    debugger("Antes do 2 while");
-    while(Ei <= Es){
-        
-        RetiraMin(&Area, &R, &NRArea);
-        EscreveMin(ArqEi, R, &Ei);
+
+    while(eInf <= eSup){
+        RetiraMin(&area, &R, &numArea);
+        EscreveMin(ArqEi, R, &eInf);
     }
-    debugger("terminou particao");
+}
+
+void PrintSubfileContents(FILE *file, int start, int end, const char *subfileName) {
+    TipoRegistro reg;
+    printf("%s: ", subfileName);
+    fseek(file, (start - 1) * sizeof(TipoRegistro), SEEK_SET);
+
+    // printf("start: %d\n", start);
+    // printf("end: %d\n", end);
+    
+
+    for (int pos = start; pos <= end; pos++) {
+        if((fread(&reg, sizeof(TipoRegistro), 1, file)) != 1)
+            printf("Sem registros para ler\n");
+        else 
+            printf("| %.1f ", reg.nota);
+    }
+    printf("\n");
 }

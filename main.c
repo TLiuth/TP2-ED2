@@ -34,7 +34,7 @@ int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, ch
     printf("Deseja gerar o arquivo novamente?\n");
     scanf("%d", &op);
     if(op == 1)
-        txtParaBin("PROVAO.TXT", "PROVAO.dat");
+        txtParaBin("PROVAO.TXT", "PROVAO.bin");
     
 
     switch (metodo)
@@ -48,25 +48,51 @@ int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, ch
             break;
 
         case 3: // quicksort externo
-            FILE *ArqLEs, *ArqLi, *ArqEi;
-            ArqLi = fopen("PROVAO.dat", "r+b");
+            FILE *ArqLEs; 
+            FILE *ArqLi;
+            FILE *ArqEi; 
+            FILE *output;
+            TipoRegistro R;
+            if((output = fopen("outputTotal.txt", "w")) == NULL)
+                exit(1);
+            ArqLi = fopen("PROVAO.bin", "r+b");
             if(ArqLi == NULL){
                 printf("Erro na abertura do arquivo!");
                 exit(1);
             }
-            ArqEi = fopen("PROVAO.dat", "r+b");
+            ArqEi = fopen("PROVAO.bin", "r+b");
             if(ArqEi == NULL){
                 printf("Erro na abertura do arquivo!");
                 exit(1);
             }
-            ArqLEs = fopen("PROVAO.dat", "r+b");
+            ArqLEs = fopen("PROVAO.bin", "r+b");
             if(ArqLEs == NULL){
                 printf("Erro na abertura do arquivo!");
                 exit(1);
             }
 
             QuicksortExterno(&ArqLi, &ArqEi, &ArqLEs, 1, quantidade);
-            read_and_print_records("PROVAO.dat");
+            // fclose(ArqEi);
+            // fclose(ArqLEs);
+            
+
+            fflush(ArqLi); fclose(ArqEi); fclose(ArqLEs);
+            read_and_print_records("PROVAO.bin");
+
+            fseek(ArqLi, 0, SEEK_SET);
+
+            // int i = 1;
+            // while(fread(&R, sizeof(TipoRegistro), 1, ArqLi)){
+            //     // printf("Registro %d: %ld %.2f %s %s %s\n", i, R.inscricao, R.nota, R.estado, R.cidade, R.curso);
+            //     fprintf(output, "%08ld %05.1f %-82s\n", 
+            //             R.inscricao,
+            //             R.nota,
+            //             R.restante);
+            //     i++;
+            // }
+
+            // fclose(output);
+            // fclose(ArqLi);
 
 
             break;
@@ -75,6 +101,7 @@ int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, ch
         default:
             break;
         }
+
 
     return 0;
         
