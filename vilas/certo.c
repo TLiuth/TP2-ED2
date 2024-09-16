@@ -6,6 +6,7 @@
 #include <limits.h>
 #define DEBUG_MODE true
 
+void PrintSubfileContents(FILE *file, int start, int end, const char *subfileName);
 
 void debugger(const char* linha){
     if(DEBUG_MODE) printf("> %s\n", linha);
@@ -118,8 +119,9 @@ void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq,
     *j = Dir + 1;
     //debugger("Antes do while");
     while(Ls >= Li){
-        
+        // PrintSubfileContents(*ArqEi, Esq, *i, "A1");
         // ListaImprime(&Area);
+        // PrintSubfileContents(*ArqLEs, *j, Dir, "A2");
         // printf("===========================================\n");
 
         if(NRArea < (TAM_AREA - 1)){
@@ -170,7 +172,9 @@ void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq,
 
         InserirArea(&Area, &UltLido, &NRArea);
 
+        // PrintSubfileContents(*ArqEi, Esq, *i, "A1");
         // ListaImprime(&Area);
+        // PrintSubfileContents(*ArqLEs, *j, Dir, "A2");
         // printf("===========================================\n");
 
         if((Ei - Esq) < (Dir - Es)){
@@ -192,7 +196,26 @@ void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq,
         
         RetiraMin(&Area, &R, &NRArea);
         EscreveMin(ArqEi, R, &Ei);
+        //PrintSubfileContents(*ArqEi, Esq, *i, "A1");
     }
 
     debugger("terminou particao");
+}
+
+void PrintSubfileContents(FILE *file, int start, int end, const char *subfileName) {
+    TipoRegistro reg;
+    printf("%s: ", subfileName);
+    fseek(file, (start - 1) * sizeof(TipoRegistro), SEEK_SET);
+
+    // printf("start: %d\n", start);
+    // printf("end: %d\n", end);
+    
+
+    for (int pos = start; pos <= end; pos++) {
+        if((fread(&reg, sizeof(TipoRegistro), 1, file)) != 1)
+            printf("Sem registros para ler\n");
+        else 
+            printf("| %.1f ", reg.nota);
+    }
+    printf("\n");
 }

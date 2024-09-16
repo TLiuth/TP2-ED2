@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#define TAM_AREA 220
+#define TAM_AREA 20
 
 
 typedef struct {

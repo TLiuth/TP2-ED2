@@ -108,30 +108,6 @@ void RetiraMin(TipoArea *Area, TipoRegistro *R, int *NRArea){
 #define DEBUG_PARTICAO true
 void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq, int Dir, int *i, int *j){
     printf("Entrou em Particao *************************************************************\n");
-    fprintf(stdout, "[%s] (%d, %d)\n\n", __func__, Esq, Dir);
-    
-    // ordenação interna
-    // if ((Dir - Esq) < 20) {
-    //     TipoRegistro buffer_de_ordenacao[20] = { 0 };
-
-    //     //
-    //     const size_t tamanho_da_particao = (size_t) (Dir - Esq + 1);
-        
-    //     fseek(* ArqLi, sizeof(TipoRegistro) * Esq, SEEK_SET);
-    //     fread(buffer_de_ordenacao, sizeof(TipoRegistro), tamanho_da_particao, *ArqLEs);
-        
-    //     // ordenação interna da Área
-    //     Area.tam = 0;
-    //     for(int k = 0; k < tamanho_da_particao; k ++){
-    //         insere(&Area, buffer_de_ordenacao[k], tamanho_da_particao);
-    //     }
-        
-    //     fseek(* ArqEi, sizeof(TipoRegistro) * Esq, SEEK_SET);
-    //     fwrite(Area.itens, sizeof(TipoRegistro), tamanho_da_particao, * ArqEi);
-
-    //     return;
-    // }
-
     
     int Ls = Dir, Es = Dir, Li = Esq, Ei = Esq, NRArea = 0;
     float Linf = INT_MIN, Lsup = INT_MAX;
@@ -223,7 +199,6 @@ void Particao(FILE **ArqLi, FILE **ArqEi, FILE **ArqLEs, TipoArea Area, int Esq,
         PrintSubfileContents(*ArqEi, Esq, *i, "A1");
     }
 
-    fprintf(stdout, "[%s] (i, j) = (%d, %d)\n", __func__, *i, *j);
     debugger("terminou particao");
 }
 
