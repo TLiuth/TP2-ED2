@@ -74,14 +74,6 @@ int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, ch
             }
             // Executar a intercalação balanceada com seleção por substituição
             intercalacaoBalanceadaComSelecaoSubstituicao(fitasDeEntrada, fitasDeSaida, quantidade);
-            // Fechar as fitas de entrada e saída
-            for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
-                fclose(fitasDeEntrada[i]);
-            }
-            for (int i = 0; i < TOTAL_FITAS_SAIDA; i++) {
-                fclose(fitasDeSaida[i]);
-            }
-
             printf("Intercalação balanceada com seleção por substituição concluída!\n");
                     break;
 
