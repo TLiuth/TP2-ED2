@@ -25,21 +25,13 @@ void buildHeap(Dados arr[], int n) {
         heapify(arr, n, i);
 }
 
-void ordenaBlocoPorHeap(Dados alunos[], int n) {
-    buildHeap(alunos, n);
-
-    for (int i = n - 1; i > 0; i--) {
-        Dados temp = alunos[0];
-        alunos[0] = alunos[i];
-        alunos[i] = temp;
-        heapify(alunos, i, 0);
-    }
-}
-
-void gerarBlocosOrdenados(FILE *arquivoDeEntrada, int quantidade) {
+// Função para gerar blocos utilizando Seleção por Substituição
+void gerarBlocosPorSelecaoSubstituicao(FILE *arquivoDeEntrada, int quantidade) {
     FILE *fitasDeEntrada[TOTAL_FITAS_ENTRADA];
     Dados alunos[MAX_REGISTROS_MEMORIA];
+    Dados buffer[MAX_REGISTROS_MEMORIA]; // Para armazenar os registros que não podem entrar no heap atual
     int registrosLidos = 0, contador = 0;
+    int registrosBuffer = 0;
 
     // Abrir as fitas de entrada para escrita
     for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
@@ -54,35 +46,64 @@ void gerarBlocosOrdenados(FILE *arquivoDeEntrada, int quantidade) {
     }
 
     while (registrosLidos < quantidade) {
-        char linha[256];
-        int registrosNaMemoria = -1;
-
+        int registrosNaMemoria = 0;
+        // Preencher o heap inicial
         for (int i = 0; i < MAX_REGISTROS_MEMORIA && registrosLidos < quantidade; i++) {
+            char linha[256];
             if (fgets(linha, sizeof(linha), arquivoDeEntrada) != NULL) {
                 sscanf(linha, "%ld %f %2s %50[^\t\n] %30[^\t\n]",
                        &alunos[i].inscricao, &alunos[i].nota, alunos[i].estado,
                        alunos[i].cidade, alunos[i].curso);
-                registrosNaMemoria++;
                 registrosLidos++;
+                registrosNaMemoria++;
             }
         }
 
-        if (registrosNaMemoria == 0) {
-            break;
+        buildHeap(alunos, registrosNaMemoria); // Construir o heap inicial
+
+        // Processar o heap e gravar nos blocos de saída
+        while (registrosNaMemoria > 0) {
+            // Pegamos o menor registro do heap (alunos[0])
+            Dados menor = alunos[0];
+            fprintf(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA], "%08ld %05.1f %-2s %-50s %-30s\n",
+                    menor.inscricao, menor.nota, menor.estado,
+                    menor.cidade, menor.curso);
+
+            // Ler o próximo registro do arquivo de entrada
+            char linha[256];
+            if (fgets(linha, sizeof(linha), arquivoDeEntrada) != NULL) {
+                Dados novoRegistro;
+                sscanf(linha, "%ld %f %2s %50[^\t\n] %30[^\t\n]",
+                       &novoRegistro.inscricao, &novoRegistro.nota, novoRegistro.estado,
+                       novoRegistro.cidade, novoRegistro.curso);
+
+                // Verificar se o novo registro é maior que o registro removido
+                if (novoRegistro.nota >= menor.nota) {
+                    alunos[0] = novoRegistro; // Substitui o topo do heap
+                } else {
+                    buffer[registrosBuffer++] = novoRegistro; // Armazena no buffer para o próximo bloco
+                    alunos[0] = alunos[--registrosNaMemoria]; // Remove o elemento do heap
+                }
+
+                heapify(alunos, registrosNaMemoria, 0); // Reorganizar o heap
+            } else {
+                // Não há mais registros no arquivo de entrada
+                alunos[0] = alunos[--registrosNaMemoria];
+                heapify(alunos, registrosNaMemoria, 0);
+            }
         }
 
-        ordenaBlocoPorHeap(alunos, registrosNaMemoria);
-
-        for (int i = 0; i < registrosNaMemoria; i++) {
-            fprintf(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA],
-                    "%08ld %05.1f %-2s %-50s %-30s\n",
-                    alunos[i].inscricao, alunos[i].nota, alunos[i].estado,
-                    alunos[i].cidade, alunos[i].curso);
+        // Transferir os registros do buffer para o heap (para o próximo bloco)
+        for (int i = 0; i < registrosBuffer; i++) {
+            alunos[i] = buffer[i];
         }
+        registrosNaMemoria = registrosBuffer;
+        registrosBuffer = 0;
 
-        contador++;
+        contador++; // Próximo bloco
     }
 
+    // Fechar as fitas de entrada
     for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
         if (fitasDeEntrada[i] != NULL) {
             fclose(fitasDeEntrada[i]);
@@ -90,7 +111,7 @@ void gerarBlocosOrdenados(FILE *arquivoDeEntrada, int quantidade) {
     }
 }
 
-void intercalacaoBalanceada(FILE *fitasDeEntrada[], FILE *fitasDeSaida[], int quantidadeBlocos) {
+void intercalacaoBalanceadaComSelecaoSubstituicao(FILE *fitasDeEntrada[], FILE *fitasDeSaida[], int quantidadeBlocos) {
     Dados heap[TOTAL_FITAS_ENTRADA];
     int totalFitasRestantes = TOTAL_FITAS_ENTRADA;
     int contadorSaida = 0; // Para controlar as fitas de saída
