@@ -7,7 +7,7 @@
 #include "dados.h"
 #include "intercalacaoBalanceada.h"
 
-bool EntradaInvalida(int argc, int metodo, int quantidade, int situacao);
+// bool EntradaInvalida(int argc, int metodo, int quantidade, int situacao);
 char *retornaSituacao(int situacao);
 char *retornaQuantidade(int quantidade);
 int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, char *argv[]);
@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) {
 }
 
 int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, char *argv[]) {
-    if (EntradaInvalida(argc, metodo, quantidade, situacao))
-        return 0;
+    // if (EntradaInvalida(argc, metodo, quantidade, situacao))
+    //     return 0;
 
     int op;
     printf("Deseja gerar o arquivo novamente?\n");
