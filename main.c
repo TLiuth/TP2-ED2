@@ -4,16 +4,16 @@
 #include "quicksort.h"
 #include "lista.h"
 #include "gerador.h"
-
-
+#include "dados.h"
+#include "intercalacaoBalanceada.h"
 
 bool EntradaInvalida(int argc, int metodo, int quantidade, int situacao);
 char *retornaSituacao(int situacao);
 char *retornaQuantidade(int quantidade);
-int operador(int metodo,int quantidade,int situacao,char *flagP, int argc, char *argv[]);
+int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, char *argv[]);
 
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
     int metodo = atoi(argv[1]);
     int quantidade = atoi(argv[2]);
     int situacao = atoi(argv[3]);
@@ -21,114 +21,108 @@ int main(int argc, char *argv[]){
 
     operador(metodo, quantidade, situacao, flagP, argc, argv);
 
-    return 0; 
+    return 0;
 }
 
-
-int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, char *argv[]){
-    if(EntradaInvalida(argc, metodo, quantidade, situacao))
+int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, char *argv[]) {
+    if (EntradaInvalida(argc, metodo, quantidade, situacao))
         return 0;
 
     int op;
-
     printf("Deseja gerar o arquivo novamente?\n");
     scanf("%d", &op);
-    if(op == 1)
+    if (op == 1)
         txtParaBin("PROVAO.TXT", "PROVAO.bin");
-    
 
-    switch (metodo)
-    {
+    switch (metodo) {
         case 1: // 2f caminhos sem seleção por substituição
-            /* code */
-            break;
-            
+           
+
         case 2: // 2f caminhos com seleção por substituição
-            // code //
-            break;
+            printf("Executando intercalação balanceada com seleção por substituição...\n");
+            // Abrir arquivo de entrada
+            FILE *arqDeEntrada = fopen("PROVAO.TXT", "r");
+            if (arqDeEntrada == NULL) {
+                printf("Erro ao abrir o arquivo de entrada\n");
+                return 1;
+            }
+            // Gerar blocos utilizando seleção por substituição
+            gerarBlocosPorSelecaoSubstituicao(arqDeEntrada, quantidade);
+            fclose(arqDeEntrada);
+            // Abertura das fitas de entrada e saída para intercalação
+            FILE *fitasDeEntrada[TOTAL_FITAS_ENTRADA];
+            FILE *fitasDeSaida[TOTAL_FITAS_SAIDA];
+            // Abrir fitas de entrada para leitura
+            for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
+                char nomeArquivo[50];
+                sprintf(nomeArquivo, "%sfita_entrada%d.txt", CAMINHO_DAS_FITAS, i + 1);
+                fitasDeEntrada[i] = fopen(nomeArquivo, "r");
+                if (fitasDeEntrada[i] == NULL) {
+                    printf("Erro ao abrir a fita de entrada %d\n", i + 1);
+                    return 1;
+                }
+            }
+            // Abrir fitas de saída para escrita
+            for (int i = 0; i < TOTAL_FITAS_SAIDA; i++) {
+                char nomeArquivo[50];
+                sprintf(nomeArquivo, "%sfita_saida%d.txt", CAMINHO_DAS_FITAS, i + 1);
+                fitasDeSaida[i] = fopen(nomeArquivo, "w+");
+                if (fitasDeSaida[i] == NULL) {
+                    printf("Erro ao abrir a fita de saída %d\n", i + 1);
+                    return 1;
+                }
+            }
+            // Executar a intercalação balanceada com seleção por substituição
+            intercalacaoBalanceadaComSelecaoSubstituicao(fitasDeEntrada, fitasDeSaida, quantidade);
+            // Fechar as fitas de entrada e saída
+            for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
+                fclose(fitasDeEntrada[i]);
+            }
+            for (int i = 0; i < TOTAL_FITAS_SAIDA; i++) {
+                fclose(fitasDeSaida[i]);
+            }
+
+            printf("Intercalação balanceada com seleção por substituição concluída!\n");
+                    break;
 
         case 3: // quicksort externo
-            FILE *ArqLEs; 
-            FILE *ArqLi;
-            FILE *ArqEi; 
-            FILE *output;
+            printf("Executando quicksort externo...\n");
+            FILE *ArqLEs, *ArqLi, *ArqEi, *output;
             TipoRegistro R;
-            if((output = fopen("outputTotal.txt", "w")) == NULL)
+
+            if ((output = fopen("outputTotal.txt", "w")) == NULL)
                 exit(1);
             ArqLi = fopen("PROVAO.bin", "r+b");
-            if(ArqLi == NULL){
-                printf("Erro na abertura do arquivo!");
+            if (ArqLi == NULL) {
+                printf("Erro na abertura do arquivo!\n");
                 exit(1);
             }
             ArqEi = fopen("PROVAO.bin", "r+b");
-            if(ArqEi == NULL){
-                printf("Erro na abertura do arquivo!");
+            if (ArqEi == NULL) {
+                printf("Erro na abertura do arquivo!\n");
                 exit(1);
             }
             ArqLEs = fopen("PROVAO.bin", "r+b");
-            if(ArqLEs == NULL){
-                printf("Erro na abertura do arquivo!");
+            if (ArqLEs == NULL) {
+                printf("Erro na abertura do arquivo!\n");
                 exit(1);
             }
 
-            QuicksortExterno(&ArqLi, &ArqEi, &ArqLEs, 1, quantidade);
-            // fclose(ArqEi);
-            // fclose(ArqLEs);
-            
+            QuicksortExterno(&ArqLi, &ArqEi, &ArqLEs, output, quantidade);
 
-            fflush(ArqLi); fclose(ArqEi); fclose(ArqLEs);
-            read_and_print_records("PROVAO.bin");
+            fclose(ArqLi);
+            fclose(ArqEi);
+            fclose(ArqLEs);
+            fclose(output);
 
-            fseek(ArqLi, 0, SEEK_SET);
-
-            // int i = 1;
-            // while(fread(&R, sizeof(TipoRegistro), 1, ArqLi)){
-            //     // printf("Registro %d: %ld %.2f %s %s %s\n", i, R.inscricao, R.nota, R.estado, R.cidade, R.curso);
-            //     fprintf(output, "%08ld %05.1f %-82s\n", 
-            //             R.inscricao,
-            //             R.nota,
-            //             R.restante);
-            //     i++;
-            // }
-
-            // fclose(output);
-            // fclose(ArqLi);
-
+            printf("Quicksort externo concluído!\n");
 
             break;
-
 
         default:
+            printf("Método inválido!\n");
             break;
-        }
-
+    }
 
     return 0;
-        
-    }
-
-
-bool EntradaInvalida(int argc, int metodo, int quantidade, int situacao){
-    if(argc > 5 || argc < 4){
-        printf("Formato de entrada não compatível\n");
-        return true;
-    }
-
-    if(metodo != 1 && metodo != 2 && metodo != 3){
-        printf("Método indefinido ou inexistente\n");
-        return true;
-    }
-
-    if(!(quantidade == 50 || quantidade == 100 || quantidade == 1000 || quantidade == 10000 || quantidade == 100000 || quantidade == 471705)){
-        printf("Tamanho de arquivo inválido\n");
-        return true;
-    }
-
-    if(situacao != 1 && situacao != 2 && situacao != 3){
-        printf("Situação inválida\n");
-        return true;
-    }
-
-    return false;
 }
-
