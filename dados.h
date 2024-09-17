@@ -7,7 +7,8 @@
 #define MAX_REGISTROS_MEMORIA 20
 #define TOTAL_FITAS_ENTRADA 20
 #define TOTAL_FITAS_SAIDA 20
-#define CAMINHO_DAS_FITAS "storage_fitas"
+#define CAMINHO_DAS_FITAS "storage_fitas/"
+#define MAX_NOME 50  // Definição do tamanho máximo do nome dos arquivos
 
 typedef struct Dados {
     long inscricao;
