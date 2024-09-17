@@ -144,8 +144,7 @@ int intercalacaoBalanceadaComSelecaoSubstituicao(FILE *fitasDeEntrada[], FILE *f
     char nomeFitasSaida[TOTAL_FITAS_SAIDA][50];
 
     // Designar uma fita de saída final para conter todos os dados ao final
-    int fitaFinal = 0;  // Supondo que a fita 0 será usada para o resultado final
-
+    int fitaFinal = 0;  
     // Preencher os nomes dos arquivos de entrada e saída
     for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
         sprintf(nomeFitasEntrada[i], "%sfita_entrada%d.txt", CAMINHO_DAS_FITAS, i + 1);
