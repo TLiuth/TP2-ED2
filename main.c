@@ -36,7 +36,7 @@ int operador(int metodo, int quantidade, int situacao, char *flagP, int argc, ch
 
     switch (metodo) {
         case 1: // 2f caminhos sem seleção por substituição
-           
+           break;
 
         case 2: // 2f caminhos com seleção por substituição
             printf("Executando intercalação balanceada com seleção por substituição...\n");
