@@ -1,79 +1,45 @@
-#include "dados.h"
 #include "intercalacaoBalanceada.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
-// Função para ajustar o heap
-void heapify(Dados arr[], int n, int i) {
-    int smallest = i;  
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
+// Função para ordenar um bloco na memória usando inserção (sem substituição por seleção)
+void ordenaBloco(Registros alunos[], int n) {
+    int i, j;
+    Registros key;
 
-    if (left < n && arr[left].nota < arr[smallest].nota)
-        smallest = left;
+    for (i = 1; i < n; i++) {
+        key = alunos[i];
+        j = i - 1;
 
-    if (right < n && arr[right].nota < arr[smallest].nota)
-        smallest = right;
+        while (j >= 0 && alunos[j].nota > key.nota) {
+            alunos[j + 1] = alunos[j];
+            j--;
+        }
 
-    if (smallest != i) {
-        Dados temp = arr[i];
-        arr[i] = arr[smallest];
-        arr[smallest] = temp;
-        heapify(arr, n, smallest);
+        alunos[j + 1] = key;
     }
 }
 
-// Função para construir o heap
-void buildHeap(Dados arr[], int n) {
-    for (int i = (n / 2) - 1; i >= 0; i--)
-        heapify(arr, n, i);
-}
+// Função para gerar blocos ordenados sem substituição por seleção
+void gerarBlocosOrdenados(FILE* arquivoDeEntrada, FILE* fitasDeEntrada[], int quantidade) {
+    Registros alunos[MAX_REGISTROS_MEMORIA];
+    int registrosLidos = 0, contador = 0;
 
-// Função para gerar blocos usando seleção por substituição
-void gerarBlocosPorSelecaoSubstituicao(FILE *arquivoDeEntrada, int quantidade) {
-    FILE *fitasDeEntrada[TOTAL_FITAS_ENTRADA];
-    FILE *fitasDeSaida[TOTAL_FITAS_SAIDA];
-    Dados alunos[MAX_REGISTROS_MEMORIA];
-    Dados buffer[MAX_REGISTROS_MEMORIA];
-    int registrosLidos = 0, contadorSaida = 0;
-    int registrosBuffer = 0;
-
-    // Abrir as fitas de entrada para escrita
-    for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
-        char nomeArquivo[50];
-        sprintf(nomeArquivo, "%sfita_entrada%d.txt", CAMINHO_DAS_FITAS, i + 1);
-        fitasDeEntrada[i] = fopen(nomeArquivo, "w+");
-        if (fitasDeEntrada[i] == NULL) {
-            printf("Erro ao abrir o arquivo %s\n", nomeArquivo);
-            return;
-        }
-    }
-
-    // Abrir as fitas de saída para escrita
-    for (int i = 0; i < TOTAL_FITAS_SAIDA; i++) {
-        char nomeArquivo[50];
-        sprintf(nomeArquivo, "%sfita_saida%d.txt", CAMINHO_DAS_FITAS, i + 1);
-        fitasDeSaida[i] = fopen(nomeArquivo, "w+");
-        if (fitasDeSaida[i] == NULL) {
-            printf("Erro ao abrir o arquivo %s\n", nomeArquivo);
-            return;
-        }
-    }
-
-    // Gerar blocos
     while (registrosLidos < quantidade) {
         int registrosNaMemoria = 0;
 
-        // Preencher o heap inicial
-        while (registrosNaMemoria < MAX_REGISTROS_MEMORIA && registrosLidos < quantidade) {
-            char linha[256];
-            if (fgets(linha, sizeof(linha), arquivoDeEntrada) != NULL) {
-                sscanf(linha, "%ld %f %2s %50[^\t\n] %30[^\t\n]",
-                       &alunos[registrosNaMemoria].inscricao, &alunos[registrosNaMemoria].nota,
-                       alunos[registrosNaMemoria].estado, alunos[registrosNaMemoria].cidade,
-                       alunos[registrosNaMemoria].curso);
-                registrosLidos++;
+        for (int i = 0; i < MAX_REGISTROS_MEMORIA && registrosLidos < quantidade; i++) {
+            if (fread(&alunos[i], sizeof(Registros), 1, arquivoDeEntrada) == 1) {
                 registrosNaMemoria++;
+                registrosLidos++;
             } else {
-                break;
+                if (feof(arquivoDeEntrada)) {
+                    break;
+                } else {
+                    perror("Erro ao ler linha do arquivo de origem (arquivoDeEntrada)");
+                    exit(EXIT_FAILURE);
+                }
             }
         }
 
@@ -81,141 +47,235 @@ void gerarBlocosPorSelecaoSubstituicao(FILE *arquivoDeEntrada, int quantidade) {
             break;
         }
 
-        buildHeap(alunos, registrosNaMemoria);  // Construir o heap inicial
+        ordenaBloco(alunos, registrosNaMemoria);
 
-        // Processar o heap e gravar nos blocos de saída
-        while (registrosNaMemoria > 0) {
-            Dados menor = alunos[0];
-            fprintf(fitasDeEntrada[contadorSaida % TOTAL_FITAS_ENTRADA], "%08ld %05.1f %-2s %-50s %-30s\n",
-                    menor.inscricao, menor.nota, menor.estado, menor.cidade, menor.curso);
-
-            char linha[256];
-            if (fgets(linha, sizeof(linha), arquivoDeEntrada) != NULL) {
-                Dados novoRegistro;
-                sscanf(linha, "%ld %f %2s %50[^\t\n] %30[^\t\n]",
-                       &novoRegistro.inscricao, &novoRegistro.nota, novoRegistro.estado,
-                       novoRegistro.cidade, novoRegistro.curso);
-
-                if (novoRegistro.nota >= menor.nota) {
-                    alunos[0] = novoRegistro;
-                } else {
-                    buffer[registrosBuffer++] = novoRegistro;
-                    alunos[0] = alunos[--registrosNaMemoria];
-                }
-            } else {
-                alunos[0] = alunos[--registrosNaMemoria];
+        for (int j = 0; j < registrosNaMemoria; j++) {
+            if (fprintf(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA], "%08ld %05.1f %s\n",
+                        alunos[j].inscricao, alunos[j].nota, alunos[j].restante) < 0) {
+                perror("Erro ao escrever no arquivo de saída");
+                exit(EXIT_FAILURE);
             }
 
-            heapify(alunos, registrosNaMemoria, 0);
+            fflush(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA]);
         }
 
-        // Transferir registros do buffer para a memória
-        for (int i = 0; i < registrosBuffer; i++) {
-            alunos[i] = buffer[i];
-        }
-        registrosNaMemoria = registrosBuffer;
-        registrosBuffer = 0;
-        contadorSaida++;
-    }
-
-    // Fechar os arquivos de fita de entrada
-    for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
-        if (fitasDeEntrada[i] != NULL) {
-            fclose(fitasDeEntrada[i]);
-        }
-    }
-
-    // Fechar os arquivos de fita de saída
-    for (int i = 0; i < TOTAL_FITAS_SAIDA; i++) {
-        if (fitasDeSaida[i] != NULL) {
-            fclose(fitasDeSaida[i]);
-        }
+        contador++;
     }
 }
 
-int intercalacaoBalanceadaComSelecaoSubstituicao(FILE *fitasDeEntrada[], FILE *fitasDeSaida[], int quantidadeBlocos) {
-    Dados heap[TOTAL_FITAS_ENTRADA];
-    int totalFitasRestantes = TOTAL_FITAS_ENTRADA;
-    int contadorSaida = 0;
-    int fitaOrigem[TOTAL_FITAS_ENTRADA];
+// Função para reorganizar o heap (min-heapify)
+void minHeapify(Registros heap[], int n, int i) {
+    int menor = i;
+    int esquerda = 2 * i + 1;
+    int direita = 2 * i + 2;
 
-    // Guardar os nomes dos arquivos de entrada e saída para reabertura e limpeza
-    char nomeFitasEntrada[TOTAL_FITAS_ENTRADA][50];
-    char nomeFitasSaida[TOTAL_FITAS_SAIDA][50];
+    if (esquerda < n && heap[esquerda].nota < heap[menor].nota)
+        menor = esquerda;
 
-    // Designar uma fita de saída final para conter todos os dados ao final
-    int fitaFinal = 0;  
-    // Preencher os nomes dos arquivos de entrada e saída
-    for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
-        sprintf(nomeFitasEntrada[i], "%sfita_entrada%d.txt", CAMINHO_DAS_FITAS, i + 1);
+    if (direita < n && heap[direita].nota < heap[menor].nota)
+        menor = direita;
+
+    if (menor != i) {
+        Registros temp = heap[i];
+        heap[i] = heap[menor];
+        heap[menor] = temp;
+        minHeapify(heap, n, menor);
     }
-    for (int i = 0; i < TOTAL_FITAS_SAIDA; i++) {
-        sprintf(nomeFitasSaida[i], "%sfita_saida%d.txt", CAMINHO_DAS_FITAS, i + 1);
-    }
+}
 
-    // Inicializar heap com o primeiro registro de cada fita de entrada
-    for (int i = 0; i < totalFitasRestantes; i++) {
-        if (fscanf(fitasDeEntrada[i], "%ld %f %2s %50[^\t\n] %30[^\t\n]",
-                   &heap[i].inscricao, &heap[i].nota, heap[i].estado,
-                   heap[i].cidade, heap[i].curso) == EOF) {
-            totalFitasRestantes--;
-            heap[i] = heap[totalFitasRestantes];
-            fitaOrigem[i] = fitaOrigem[totalFitasRestantes];
-            i--;
+// Constrói o heap inicial
+void construirHeap(Registros heap[], int n) {
+    for (int i = n / 2 - 1; i >= 0; i--) {
+        minHeapify(heap, n, i);
+    }
+}
+
+// Gera blocos usando seleção por substituição (com heap)
+void gerarBlocosComHeap(FILE* arquivoDeEntrada, FILE* fitasDeEntrada[], int quantidade) {
+    Registros heap[MAX_REGISTROS_MEMORIA];
+    Registros substituto;
+    int registrosLidos = 0, contador = 0, tamanhoHeap = 0;
+
+    // Inicializa o heap com os primeiros registros
+    while (registrosLidos < MAX_REGISTROS_MEMORIA && registrosLidos < quantidade) {
+        if (fread(&heap[registrosLidos], sizeof(Registros), 1, arquivoDeEntrada) == 1) {
+            registrosLidos++;
+            tamanhoHeap++;
         } else {
-            fitaOrigem[i] = i;
+            if (feof(arquivoDeEntrada)) {
+                break;
+            } else {
+                perror("Erro ao ler linha do arquivo de origem (arquivoDeEntrada)");
+                exit(EXIT_FAILURE);
+            }
         }
     }
 
-    buildHeap(heap, totalFitasRestantes);
+    construirHeap(heap, tamanhoHeap);
 
-    // Processar o heap até que todas as fitas de entrada estejam vazias
-    while (totalFitasRestantes > 0) {
-        Dados menor = heap[0];
+    while (registrosLidos < quantidade) {
+        // Escreve o menor elemento do heap na fita
+        if (fprintf(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA], "%08ld %05.1f %s\n",
+                    heap[0].inscricao, heap[0].nota, heap[0].restante) < 0) {
+            perror("Erro ao escrever no arquivo de saída");
+            exit(EXIT_FAILURE);
+        }
 
-        // Escrever o menor elemento na fita de saída final
-        fprintf(fitasDeSaida[fitaFinal], "%08ld %05.1f %-2s %-50s %-30s\n",
-                menor.inscricao, menor.nota, menor.estado,
-                menor.cidade, menor.curso);
+        fflush(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA]);
 
-        int fita = fitaOrigem[0];
-        if (fscanf(fitasDeEntrada[fita], "%ld %f %2s %50[^\t\n] %30[^\t\n]",
-                   &heap[0].inscricao, &heap[0].nota, heap[0].estado,
-                   heap[0].cidade, heap[0].curso) == EOF) {
-            heap[0] = heap[--totalFitasRestantes];
-            fitaOrigem[0] = fitaOrigem[totalFitasRestantes];
+        // Lê o próximo registro
+        if (fread(&substituto, sizeof(Registros), 1, arquivoDeEntrada) == 1) {
+            if (substituto.nota >= heap[0].nota) {
+                heap[0] = substituto;
+            } else {
+                break;
+            }
         } else {
-            fitaOrigem[0] = fita;
+            if (feof(arquivoDeEntrada)) {
+                break;
+            } else {
+                perror("Erro ao ler linha do arquivo de origem (arquivoDeEntrada)");
+                exit(EXIT_FAILURE);
+            }
         }
 
-        heapify(heap, totalFitasRestantes, 0);
-        contadorSaida++;
+        minHeapify(heap, tamanhoHeap, 0);
     }
 
-    // Fechar as fitas de entrada
-    for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
-        if (fitasDeEntrada[i] != NULL) {
-            fclose(fitasDeEntrada[i]);
+    // Escreve o restante do heap
+    for (int i = 0; i < tamanhoHeap; i++) {
+        if (fprintf(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA], "%08ld %05.1f %s\n",
+                    heap[i].inscricao, heap[i].nota, heap[i].restante) < 0) {
+            perror("Erro ao escrever no arquivo de saída");
+            exit(EXIT_FAILURE);
+        }
+
+        fflush(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA]);
+    }
+
+    contador++;
+}
+void interBalanFinal(FILE *fitasDeEntrada[TOTAL_FITAS_ENTRADA],FILE *fitasDeSaida[], int quantidade){
+    int indices[TOTAL_FITAS_ENTRADA] = { 0 };
+    Registros memoryInt[MAX_REGISTROS_MEMORIA]; 
+    int contador = 0, fitasRestantes = 0;
+    int registrosLidos[TOTAL_FITAS_ENTRADA], tamBloco = 20;
+    char line[100];int cont=0;
+    int qtd_blocos = 0;
+    for(int i = 0; i < TOTAL_FITAS_ENTRADA; i++){
+        rewind(fitasDeEntrada[i]);
+    }
+    
+    while(tamBloco < quantidade) 
+    {
+        contador = 0;
+       
+        cont ++;
+        printf("quantidade de veze que entrou no primeiro while:%d\n",cont);
+        // loop de fase
+        /*
+        const int qtt_blocos = quantidade / TOTAL_FITAS_ENTRADA;
+        const int qtt_dos_cara = min(TOTAL_FITAS_ENTRADA, quantidade);
+        
+
+        1000 / 20 = 50
+        ceil{50 / 20} = 3
+        */
+        qtd_blocos = (int) ceil( ((double) quantidade / (double) TOTAL_FITAS_ENTRADA) / MAX_REGISTROS_MEMORIA);
+        while(contador < qtd_blocos)
+        {
+            printf("RESULTADO = %d\n", qtd_blocos);
+            
+            for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++)
+            {
+                
+                if (fgets(line, sizeof(line), fitasDeEntrada[i]) != NULL){
+                    sscanf(line, "%8ld %5f %[^\n]", &memoryInt[i].inscricao, &memoryInt[i].nota, memoryInt[i].restante);
+                
+                    indices[i] = 0;
+                    registrosLidos[i] = 1;
+                    fitasRestantes++;
+
+                }else{
+                    indices[i] = -1;
+                    registrosLidos[i] = -1;
+                    break;
+                }
+            }
+            
+            // loop de intercalação
+            while (fitasRestantes > 0)
+            {   
+                // int menorIndice = -1;
+                int menorIndice = 0;
+                float menorNota = 101.0;
+            //  printf("\nvalor do menorIndice antes do for: %d\n",menorIndice);
+                // Encontrar a fita com o menor registro (baseado na nota, por exemplo)
+
+                for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) { 
+                    if ((indices[i] == -1) && (registrosLidos[i] == -1))
+                        break;   
+                    else
+                    {
+                        if ((indices[i] != -1) && (memoryInt[i].nota < menorNota)) {
+                            menorNota = memoryInt[i].nota;
+                            menorIndice = i;
+                        }
+                    }
+                }
+
+            
+            //    printf("iniciando arquivo de saida aqui!!\n");
+                // Para deconsiderar o \n
+                fgets(line, sizeof(line), fitasDeEntrada[menorIndice]);
+                //printf("line = %s", line);
+
+                // Escreve o menor registro na fita de saída atual
+              //  printf("\nfita:%d\n",contador % TOTAL_FITAS_SAIDA);
+                fprintf(fitasDeSaida[contador % TOTAL_FITAS_SAIDA], "%08ld %05.1f %s\n", 
+                    memoryInt[menorIndice].inscricao, memoryInt[menorIndice].nota, memoryInt[menorIndice].restante);
+
+                // Lê o próximo registro da fita de onde foi retirado o menor valor
+                if (fgets(line, sizeof(line), fitasDeEntrada[menorIndice]) != NULL && line[0] != '\n' && registrosLidos[menorIndice] < tamBloco) 
+                {
+                    // Faz a leitura do novo registro da fita e armazena no buffer
+                    if (sscanf(line, "%8ld %5f %[a-z A-Z]'\n'", &memoryInt[menorIndice].inscricao, &memoryInt[menorIndice].nota, memoryInt[menorIndice].restante) == 3) {
+                        registrosLidos[menorIndice]++;
+
+                // Caso o registro não seja lido corretamente, indica que a fita terminou
+                    } else{
+                        printf("Erro sscanf\n");
+                    }
+
+                }else
+                {
+                    // Se não for possível ler um novo registro da fita, indica que a fita terminou
+                    indices[menorIndice] = -1;
+                    fitasRestantes--;
+                    printf("Fim do bloco %d da fita %d\n", contador, menorIndice);
+                    printf("fitasRestantes = %d\n\n", fitasRestantes);
+                // printf("Fita %d terminada ou sem registros para ler\n", menorIndice);
+                }
+                
+            }
+           
+            contador++;
+            printf("contador %d\n",contador);
+        }
+        
+        fprintf(stderr, "[%s] trocando trocando...\n", __func__); fflush(stderr);
+        
+        tamBloco *= TOTAL_FITAS_ENTRADA;
+
+        if(tamBloco < quantidade){
+            FILE *temp[TOTAL_FITAS_ENTRADA];
+            for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
+                temp[i] = fitasDeEntrada[i];
+                fitasDeEntrada[i] = fitasDeSaida[i];
+                fitasDeSaida[i] = temp[i];
+                rewind(fitasDeSaida[i]);
+                rewind(fitasDeEntrada[i]);
+            }
         }
     }
-
-    // Fechar todas as fitas de saída, exceto a fita final
-    for (int i = 0; i < TOTAL_FITAS_SAIDA; i++) {
-        if (fitasDeSaida[i] != NULL && i != fitaFinal) {
-            fclose(fitasDeSaida[i]);
-            // Limpar as outras fitas (reabrir para sobrescrever)
-            FILE *fitaLimpar = fopen(nomeFitasSaida[i], "w"); 
-            fclose(fitaLimpar);
-        }
-    }
-
-    // Limpar as fitas de entrada (reabrir para sobrescrever)
-    for (int i = 0; i < TOTAL_FITAS_ENTRADA; i++) {
-        FILE *fitaLimpar = fopen(nomeFitasEntrada[i], "w"); 
-        fclose(fitaLimpar);
-    }
-
-    fclose(fitasDeSaida[fitaFinal]);
-
-    return 0;
 }
