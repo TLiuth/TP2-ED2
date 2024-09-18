@@ -8,22 +8,3 @@
 00123883 053.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
 00280714 055.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
 00124597 055.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00382513 055.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00394101 057.5 DF BRASILIA                                           ADMINISTRACAO                 
-00066198 056.0 MT CUIABA                                             ADMINISTRACAO                 
-00086358 061.3 DF BRASILIA                                           ADMINISTRACAO                 
-00351991 057.8 MT CUIABA                                             ADMINISTRACAO                 
-00409557 058.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00131227 057.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00120699 058.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00150205 062.8 DF BRASILIA                                           ADMINISTRACAO                 
-00382868 070.3 DF BRASILIA                                           ADMINISTRACAO                 
-00113812 067.3 MT CUIABA                                             ADMINISTRACAO                 
-00440588 066.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00058175 061.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00426064 072.3 MT CUIABA                                             ADMINISTRACAO                 
-00350655 069.3 MT CUIABA                                             ADMINISTRACAO                 
-00301503 065.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00386649 062.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00319299 060.0 MT CUIABA                                             ADMINISTRACAO                 
-00213829 067.3 DF BRASILIA                                           ADMINISTRACAO                 
