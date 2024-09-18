@@ -1,0 +1,5 @@
+00065996 016.3 MT AGUA BOA                                           ADMINISTRACAO                 
+00362081 027.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00213434 032.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00295222 049.3 MT CUIABA                                             ADMINISTRACAO                 
+00454483 050.0 MT CUIABA                                             ADMINISTRACAO                 

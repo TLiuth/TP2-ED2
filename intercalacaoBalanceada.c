@@ -95,6 +95,7 @@ void gerarBlocosComHeap(FILE* arquivoDeEntrada, FILE* fitasDeEntrada[], int quan
     Registros heap[MAX_REGISTROS_MEMORIA];
     Registros substituto;
     int registrosLidos = 0, contador = 0, tamanhoHeap = 0;
+    int novaFita = 0;
 
     // Inicializa o heap com os primeiros registros
     while (registrosLidos < MAX_REGISTROS_MEMORIA && registrosLidos < quantidade) {
@@ -115,20 +116,25 @@ void gerarBlocosComHeap(FILE* arquivoDeEntrada, FILE* fitasDeEntrada[], int quan
 
     while (registrosLidos < quantidade) {
         // Escreve o menor elemento do heap na fita
-        if (fprintf(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA], "%08ld %05.1f %s\n",
+        if (fprintf(fitasDeEntrada[novaFita], "%08ld %05.1f %s\n",
                     heap[0].inscricao, heap[0].nota, heap[0].restante) < 0) {
             perror("Erro ao escrever no arquivo de saída");
             exit(EXIT_FAILURE);
         }
 
-        fflush(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA]);
+        fflush(fitasDeEntrada[novaFita]);
 
         // Lê o próximo registro
         if (fread(&substituto, sizeof(Registros), 1, arquivoDeEntrada) == 1) {
+            registrosLidos++;
             if (substituto.nota >= heap[0].nota) {
                 heap[0] = substituto;
             } else {
-                break;
+                // Se o novo registro for menor, inicia um novo bloco
+                fprintf(stderr, "Bloco %d finalizado.\n", contador);
+                novaFita = (novaFita + 1) % TOTAL_FITAS_ENTRADA;
+                contador++;
+                heap[0] = substituto;
             }
         } else {
             if (feof(arquivoDeEntrada)) {
@@ -144,17 +150,18 @@ void gerarBlocosComHeap(FILE* arquivoDeEntrada, FILE* fitasDeEntrada[], int quan
 
     // Escreve o restante do heap
     for (int i = 0; i < tamanhoHeap; i++) {
-        if (fprintf(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA], "%08ld %05.1f %s\n",
+        if (fprintf(fitasDeEntrada[novaFita], "%08ld %05.1f %s\n",
                     heap[i].inscricao, heap[i].nota, heap[i].restante) < 0) {
             perror("Erro ao escrever no arquivo de saída");
             exit(EXIT_FAILURE);
         }
 
-        fflush(fitasDeEntrada[contador % TOTAL_FITAS_ENTRADA]);
+        fflush(fitasDeEntrada[novaFita]);
     }
 
     contador++;
 }
+
 void interBalanFinal(FILE *fitasDeEntrada[TOTAL_FITAS_ENTRADA],FILE *fitasDeSaida[], int quantidade){
     int indices[TOTAL_FITAS_ENTRADA] = { 0 };
     Registros memoryInt[MAX_REGISTROS_MEMORIA]; 

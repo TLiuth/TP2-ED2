@@ -1,0 +1,4 @@
+00423855 000.0 MT CUIABA                                             ADMINISTRACAO                 
+00340424 041.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00364281 042.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00037778 036.5 MT CUIABA                                             ADMINISTRACAO                 
