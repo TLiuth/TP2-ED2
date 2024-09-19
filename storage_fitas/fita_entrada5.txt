@@ -1,4 +1,20 @@
-00059573 000.0 MT CUIABA                                             ADMINISTRACAO                 
-00163079 023.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00238292 038.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00047497 000.0 DF BRASILIA                                           ADMINISTRACAO                 
+00203779 030.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00213434 032.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00182746 033.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00037778 036.5 MT CUIABA                                             ADMINISTRACAO                 
+00059131 036.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
 00221291 042.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00254576 046.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00123883 053.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00124947 053.8 DF BRASILIA                                           ADMINISTRACAO                 
+00131227 057.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00394101 057.5 DF BRASILIA                                           ADMINISTRACAO                 
+00120699 058.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00086358 061.3 DF BRASILIA                                           ADMINISTRACAO                 
+00386649 062.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00150205 062.8 DF BRASILIA                                           ADMINISTRACAO                 
+00301503 065.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00440588 066.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00213829 067.3 DF BRASILIA                                           ADMINISTRACAO                 
+00382868 070.3 DF BRASILIA                                           ADMINISTRACAO                 

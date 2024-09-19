@@ -1,2 +1,20 @@
-00005317 025.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00254576 046.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00057202 000.0 MT AGUA BOA                                           ADMINISTRACAO                 
+00239419 000.0 MT CUIABA                                             ADMINISTRACAO                 
+00402740 018.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00412481 020.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00386413 024.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00142590 031.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00183699 031.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00173550 034.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00278763 039.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00107236 040.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00102393 040.5 MT CUIABA                                             ADMINISTRACAO                 
+00400008 042.0 MT CUIABA                                             ADMINISTRACAO                 
+00354405 043.8 MT CUIABA                                             ADMINISTRACAO                 
+00213784 048.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00106233 048.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00124597 055.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00351991 057.8 MT CUIABA                                             ADMINISTRACAO                 
+00409557 058.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
+00350655 069.3 MT CUIABA                                             ADMINISTRACAO                 
+00426064 072.3 MT CUIABA                                             ADMINISTRACAO                 

@@ -64,7 +64,8 @@ void gerarBlocosOrdenados(FILE* arquivoDeEntrada, FILE* fitasDeEntrada[], int qu
     }
 }
 
-void minHeapify(Registros heap[], int n, int i) {
+// Função para refazer o heap (min-heap)
+void refazerHeap(Registros heap[], int i, int n) {
     int menor = i;
     int esquerda = 2 * i + 1;
     int direita = 2 * i + 2;
@@ -79,86 +80,73 @@ void minHeapify(Registros heap[], int n, int i) {
         Registros temp = heap[i];
         heap[i] = heap[menor];
         heap[menor] = temp;
-        minHeapify(heap, n, menor);
+        refazerHeap(heap, menor, n);
     }
 }
 
+// Função para construir o heap inicial
 void construirHeap(Registros heap[], int n) {
     for (int i = n / 2 - 1; i >= 0; i--) {
-        minHeapify(heap, n, i);
+        refazerHeap(heap, i, n);
     }
 }
 
+// Função para gerar blocos com heap e gravar nas fitas
 void gerarBlocosComHeap(FILE* arquivoDeEntrada, FILE* fitasDeEntrada[], int quantidade) {
     Registros heap[MAX_REGISTROS_MEMORIA];
-    Registros substituto;
-    int registrosLidos = 0, tamanhoHeap = 0;
-    int novaFita = 0;
-    bool fimArquivo = false;
-    int registrosEscritos = 0;
+    int registrosLidos = 0, contadorFitas = 0, registrosNaMemoria = 0;
 
-    // Inicializa o heap com os primeiros registros
-    while (registrosLidos < MAX_REGISTROS_MEMORIA && registrosLidos < quantidade) {
-        if (fread(&heap[registrosLidos], sizeof(Registros), 1, arquivoDeEntrada) == 1) {
-            registrosLidos++;
-            tamanhoHeap++;
-        } else {
-            if (feof(arquivoDeEntrada)) {
-                fimArquivo = true;
-                break;
+    while (registrosLidos < quantidade) {
+        registrosNaMemoria = 0;
+
+        // Preenche o heap com registros lidos do arquivo de entrada
+        for (int i = 0; i < MAX_REGISTROS_MEMORIA && registrosLidos < quantidade; i++) {
+            if (fread(&heap[i], sizeof(Registros), 1, arquivoDeEntrada) == 1) {
+                registrosNaMemoria++;
+                registrosLidos++;
             } else {
-                perror("Erro ao ler linha do arquivo de origem (arquivoDeEntrada)");
+                if (feof(arquivoDeEntrada)) {
+                    break;  // Fim do arquivo
+                } else {
+                    perror("Erro ao ler do arquivo de entrada");
+                    exit(EXIT_FAILURE);
+                }
+            }
+        }
+
+        if (registrosNaMemoria == 0) {
+            break; // Não há mais registros para processar
+        }
+
+        // Constrói o heap inicial com os registros lidos
+        construirHeap(heap, registrosNaMemoria);
+
+        // Escreve os registros do heap nas fitas de entrada
+        while (registrosNaMemoria > 0) {
+            // Escreve o menor registro na fita de saída
+            if (fprintf(fitasDeEntrada[contadorFitas % TOTAL_FITAS_ENTRADA], "%08ld %05.1f %s\n",
+                        heap[0].inscricao, heap[0].nota, heap[0].restante) < 0) {
+                perror("Erro ao escrever no arquivo de saída");
                 exit(EXIT_FAILURE);
             }
-        }
-    }
+            fflush(fitasDeEntrada[contadorFitas % TOTAL_FITAS_ENTRADA]);
 
-    construirHeap(heap, tamanhoHeap);
+            // Substitui o menor registro no heap pelo último registro do heap
+            heap[0] = heap[registrosNaMemoria - 1];
+            registrosNaMemoria--;
 
-    // Loop principal para processar os registros até atingir a quantidade desejada
-    while (registrosEscritos < quantidade && (!fimArquivo || tamanhoHeap > 0)) {
-        // Escreve o menor elemento do heap na fita
-        if (fprintf(fitasDeEntrada[novaFita], "%08ld %05.1f %s\n",
-                    heap[0].inscricao, heap[0].nota, heap[0].restante) < 0) {
-            perror("Erro ao escrever no arquivo de saída");
-            exit(EXIT_FAILURE);
-        }
-        fflush(fitasDeEntrada[novaFita]);
-        registrosEscritos++;
-
-        // Lê o próximo registro, se disponível
-        if (registrosEscritos < quantidade && !fimArquivo && fread(&substituto, sizeof(Registros), 1, arquivoDeEntrada) == 1) {
-            registrosLidos++;
-            if (substituto.nota >= heap[0].nota) {
-                heap[0] = substituto;
-            } else {
-                novaFita = (novaFita + 1) % TOTAL_FITAS_ENTRADA;
-                heap[0] = substituto;
+            // Reorganiza o heap
+            if (registrosNaMemoria > 0) {
+                refazerHeap(heap, 0, registrosNaMemoria);
             }
-        } else {
-            fimArquivo = true;
-            heap[0] = heap[tamanhoHeap - 1]; // Substitui o último elemento no heap
-            tamanhoHeap--; // Reduz o tamanho do heap
         }
 
-        minHeapify(heap, tamanhoHeap, 0);
-    }
-
-    // Escreve o restante do heap, se necessário, até a quantidade desejada
-    while (registrosEscritos < quantidade && tamanhoHeap > 0) {
-        if (fprintf(fitasDeEntrada[novaFita], "%08ld %05.1f %s\n",
-                    heap[0].inscricao, heap[0].nota, heap[0].restante) < 0) {
-            perror("Erro ao escrever no arquivo de saída");
-            exit(EXIT_FAILURE);
-        }
-        fflush(fitasDeEntrada[novaFita]);
-        registrosEscritos++;
-
-        heap[0] = heap[tamanhoHeap - 1];
-        tamanhoHeap--;
-        minHeapify(heap, tamanhoHeap, 0);
+        // Prepara para a próxima fita
+        contadorFitas++;
     }
 }
+
+
 
 
 

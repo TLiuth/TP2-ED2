@@ -1,6 +1,0 @@
-00173550 034.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00336015 046.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00034535 046.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00369241 046.5 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00311591 035.0 DF BRASILIA                                           ADMINISTRACAO                 
-00337653 049.3 DF BRASILIA                                           ADMINISTRACAO                 

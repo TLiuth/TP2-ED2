@@ -1,4 +1,0 @@
-00207334 000.0 MT CUIABA                                             ADMINISTRACAO                 
-00301802 020.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00088312 031.3 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00019284 052.3 DF BRASILIA                                           ADMINISTRACAO                 

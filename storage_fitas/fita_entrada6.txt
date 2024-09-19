@@ -1,5 +1,0 @@
-00151750 000.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00370724 000.0 MT CUIABA                                             ADMINISTRACAO                 
-00409928 037.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00059131 036.8 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
-00331437 049.0 MT PRIMAVERA DO LESTE                                 ADMINISTRACAO                 
